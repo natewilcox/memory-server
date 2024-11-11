@@ -1,37 +1,139 @@
 import { Room, Client } from "@colyseus/core";
 import { MemoryRoomState } from "./schema/MemoryRoomState";
-import { ClientMessages } from "../types/messages";
-import { Board } from "../objects/board";
+import { ClientMessages, MessageType } from "../types/messages";
 import { MemoryGame } from "../objects/game";
+import { Dispatcher } from "@colyseus/command";
+import { JoinCommand } from "../commands/JoinCommand";
+import { CreateBoardCommand } from "../commands/CreateBoardCommand";
+import { TakeTurnCommand } from "../commands/TakeTurnCommand";
+import { PlayerState } from "./schema/PlayerState";
+import { LeaveCommand } from "../commands/LeaveCommand";
+import { ClientService } from "../services/client";
+import { RestartCommand } from "../commands/RestartCommand";
 
 export class MemoryRoom extends Room<MemoryRoomState> {
-  maxClients = 4;
 
-  onCreate (options: any) {
-    this.setState(new MemoryRoomState());
+    game: MemoryGame;
+    client: ClientService;
 
-    const layout = Board.generateLayout(24);
-    const board = new Board(layout);
-    const game = new MemoryGame(board);
+    maxClients = 2;
+    dispatcher: Dispatcher<MemoryRoom> = new Dispatcher(this);
 
-    for(let i=0; i<20; i++) {
-      this.state.numbers.push(-1);
+    private player_index = 0;
+
+    onCreate(options: any) {
+
+        this.client = ClientService.getInstance(this);
+        this.setState(new MemoryRoomState());
+
+        this.dispatcher.dispatch(new CreateBoardCommand(), { });
+    
+        this.client.on(MessageType.TakeTurn, (client, message) => {
+            this.dispatcher.dispatch(new TakeTurnCommand(), { client, i: message.i });
+        });
+
+        this.client.on(MessageType.Restart, (client, message) => {
+            this.dispatcher.dispatch(new CreateBoardCommand(), { client });
+        });
     }
-    this.onMessage(ClientMessages.SendMessage, (client, message) => {
-      
-      this.state.numbers.setAt(message.i, board.get(message.i));
-    });
-  }
 
-  onJoin (client: Client, options: any) {
-    console.log(client.sessionId, "joined!");
-  }
+    onJoin(client: Client, options: any) {
+        console.log(client.sessionId, "joined!");
+        this.dispatcher.dispatch(new JoinCommand(), { client });
+    }
 
-  onLeave (client: Client, consented: boolean) {
-    console.log(client.sessionId, "left!");
-  }
+    onLeave(client: Client, consented: boolean) {
+        console.log(client.sessionId, "left!");
+        this.dispatcher.dispatch(new LeaveCommand(), { client });
+    }
 
-  onDispose() {
-    console.log("room", this.roomId, "disposing...");
-  }
+    onDispose() {
+        console.log("room", this.roomId, "disposing...");
+    }
+
+    addPlayer(player: PlayerState) {
+        
+        if(this.state.players.length == 0) {
+            console.log("setting active player to " + player.name)
+            this.state.activePlayer = player.name;
+        }
+
+        this.state.players.push(player);
+    }
+
+    removePlayer(playerName: string) {
+
+        const index = this.state.players.findIndex(p => p.name == playerName);
+        const player = this.state.players.find(p => p.name == playerName);
+        
+        if (player) {
+            this.state.players.splice(index, 1);
+        }
+    }
+
+    setActivePlayer(playerName: string) {
+
+        this.player_index = this.state.players.findIndex(p => p.name == playerName);
+        this.state.activePlayer = playerName;
+    }
+
+    isActivePlayer(playerName: string) {
+        return this.state.activePlayer == playerName;
+    }
+
+    nextPlayer() {
+        this.player_index = (this.player_index + 1) % this.state.players.length;
+        this.state.activePlayer = this.state.players[this.player_index].name;
+    }
+
+    getPlayerCount(): number {
+        return this.state.players.length;
+    }
+
+    lockRoom() {
+        this.lock();
+    }
+
+    showTile(i: number) {
+        this.state.numbers.setAt(i, this.game.board.get(i));
+    }
+
+    setTileOwner(i: number, playerName: string) {
+        this.state.answerer[i] = playerName;
+    }
+
+    setTileState(i: number, state: number) {
+        this.state.number_state[i] = state;
+    }
+
+    hideTile(i: number) {
+        this.state.numbers.setAt(i, -1);
+    }
+
+    isVisible(i: number) {
+        return this.state.numbers[i] > -1;
+    }
+
+    isMatch(i1: number, i2: number) {
+        console.log(`${this.state.numbers[i1]} == ${this.state.numbers[i2]}`)
+        return this.state.numbers[i1] == this.state.numbers[i2]; 
+    }
+
+    blockInput(block: boolean = true) {
+        this.state.block = block;
+    }
+
+    isBlocked() {
+        return this.state.block;
+    }
+
+    getOpenTileAt(): number {
+
+        for(let i=0; i<this.state.numbers.length; i++) {
+
+            if(this.state.numbers[i] != -1 && this.state.answerer[i] == "") {
+                return i;
+            }
+        }
+    }
 }
