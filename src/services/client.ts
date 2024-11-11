@@ -3,12 +3,10 @@ import { ClientMessages } from "../types/messages";
 
 export class ClientService {
 
-    private static instance: ClientService;
-    
     private room: Room;
     private clientHandlers = new Map<number, (client: Client, msg: any) => void>();
 
-    private constructor(room: Room) {
+    constructor(room: Room) {
         this.room = room;
 
         this.room.onMessage(ClientMessages.SendMessage, (client, data) => {
@@ -20,15 +18,6 @@ export class ClientService {
             }
         });
 
-    }
-
-    public static getInstance(room: Room): ClientService {
-
-        if (!ClientService.instance) {
-            ClientService.instance = new ClientService(room);
-        }
-
-        return ClientService.instance;
     }
     
     send(msgType: number, data?: any, client?: Client) {
@@ -51,10 +40,5 @@ export class ClientService {
 
     on(msgType: number, cb: (client: Client, data: any) => void, context?: any) {
         this.clientHandlers.set(msgType, cb);
-    }
-
-    dispose() {
-        this.clientHandlers.clear();
-        ClientService.instance = null;
     }
 }

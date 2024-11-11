@@ -23,7 +23,7 @@ export class MemoryRoom extends Room<MemoryRoomState> {
 
     onCreate(options: any) {
 
-        this.client = ClientService.getInstance(this);
+        this.client = new ClientService(this);
         this.setState(new MemoryRoomState());
 
         this.dispatcher.dispatch(new CreateBoardCommand(), { });
@@ -49,7 +49,6 @@ export class MemoryRoom extends Room<MemoryRoomState> {
 
     onDispose() {
         console.log("room", this.roomId, "disposing...");
-        this.client.dispose();
     }
 
     addPlayer(player: PlayerState) {
