@@ -1,29 +1,35 @@
-# Welcome to Colyseus!
+# Memory Match Game Server
 
-This project has been created using [⚔️ `create-colyseus-app`](https://github.com/colyseus/create-colyseus-app/) - an npm init template for kick starting a Colyseus project in TypeScript.
+This project is a server application for a memory match game built using [Colyseus](https://www.colyseus.io/) and [Phaser](https://phaser.io/). The server handles game logic and player interactions in real-time.
 
-[Documentation](http://docs.colyseus.io/)
+## Table of Contents
 
-## :crossed_swords: Usage
+- [Installation](#installation)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
+- [License](#license)
 
-```
-npm start
-```
+## Installation
 
-## Structure
+1. Clone the repository:
 
-- `index.ts`: main entry point, register an empty room handler and attach [`@colyseus/monitor`](https://github.com/colyseus/colyseus-monitor)
-- `src/rooms/MyRoom.ts`: an empty room handler for you to implement your logic
-- `src/rooms/schema/MyRoomState.ts`: an empty schema used on your room's state.
-- `loadtest/example.ts`: scriptable client for the loadtest tool (see `npm run loadtest`)
-- `package.json`:
-    - `scripts`:
-        - `npm start`: runs `ts-node-dev index.ts`
-        - `npm test`: runs mocha test suite
-        - `npm run loadtest`: runs the [`@colyseus/loadtest`](https://github.com/colyseus/colyseus-loadtest/) tool for testing the connection, using the `loadtest/example.ts` script.
-- `tsconfig.json`: TypeScript configuration file
+    ```bash
+    git clone https://github.com/natewilcox/memory-server.git
+    cd memory
+    ```
 
+2. Install dependencies:
 
-## License
+    ```bash
+    npm install
+    ```
 
-MIT
+## Usage
+
+### Development
+
+To start the server in development mode:
+
+```bash
+npm run start

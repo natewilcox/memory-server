@@ -10,23 +10,20 @@ export class TakeTurnCommand extends Command<MemoryRoom, Payload> {
 
     async execute({ client, i }: Payload) {
 
-        console.log("TakeTurnCommand executed");
-
         if(!this.room.isActivePlayer(client.id)) {
-
-            console.log('its not your turn');
             return;
         }
 
         if(this.room.isVisible(i)) {
-            console.log('pick something else');
             return;
         }
 
         if(this.room.isBlocked()) {
-            console.log('input is blocked');
             return;
         }
+
+        console.log("TakeTurnCommand executed");
+        console.log(`${client.id} selects ${i}`);
 
         const openTileIndex = this.room.getOpenTileAt();
         this.room.showTile(i);
@@ -34,17 +31,18 @@ export class TakeTurnCommand extends Command<MemoryRoom, Payload> {
         if(openTileIndex > -1) {
             
             if(this.room.isMatch(openTileIndex, i)) {
+                console.log('match found');
                 this.room.setTileOwner(i, client.id);
                 this.room.setTileOwner(openTileIndex, client.id);
             }
             else {
+                console.log('no match found');
                 this.room.blockInput();
                 this.room.setTileState(i, 1);
                 this.room.setTileState(openTileIndex, 1);
 
                 this.clock.setTimeout(() => {
 
-                    console.log("hide tiles");
                     this.room.hideTile(i);
                     this.room.hideTile(openTileIndex);
                     this.room.setTileState(i, 0);

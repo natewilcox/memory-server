@@ -52,4 +52,9 @@ export class ClientService {
     on(msgType: number, cb: (client: Client, data: any) => void, context?: any) {
         this.clientHandlers.set(msgType, cb);
     }
+
+    dispose() {
+        this.clientHandlers.clear();
+        ClientService.instance = null;
+    }
 }

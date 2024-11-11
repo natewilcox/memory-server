@@ -1,7 +1,6 @@
 import { Room, Client } from "@colyseus/core";
 import { MemoryRoomState } from "./schema/MemoryRoomState";
-import { ClientMessages, MessageType } from "../types/messages";
-import { MemoryGame } from "../objects/game";
+import { MessageType } from "../types/messages";
 import { Dispatcher } from "@colyseus/command";
 import { JoinCommand } from "../commands/JoinCommand";
 import { CreateBoardCommand } from "../commands/CreateBoardCommand";
@@ -9,11 +8,12 @@ import { TakeTurnCommand } from "../commands/TakeTurnCommand";
 import { PlayerState } from "./schema/PlayerState";
 import { LeaveCommand } from "../commands/LeaveCommand";
 import { ClientService } from "../services/client";
-import { RestartCommand } from "../commands/RestartCommand";
+import { Board } from "../objects/board";
 
 export class MemoryRoom extends Room<MemoryRoomState> {
 
-    game: MemoryGame;
+    board: Board;
+    
     client: ClientService;
 
     maxClients = 2;
@@ -49,12 +49,12 @@ export class MemoryRoom extends Room<MemoryRoomState> {
 
     onDispose() {
         console.log("room", this.roomId, "disposing...");
+        this.client.dispose();
     }
 
     addPlayer(player: PlayerState) {
         
         if(this.state.players.length == 0) {
-            console.log("setting active player to " + player.name)
             this.state.activePlayer = player.name;
         }
 
@@ -95,7 +95,7 @@ export class MemoryRoom extends Room<MemoryRoomState> {
     }
 
     showTile(i: number) {
-        this.state.numbers.setAt(i, this.game.board.get(i));
+        this.state.numbers.setAt(i, this.board.get(i));
     }
 
     setTileOwner(i: number, playerName: string) {
@@ -115,7 +115,6 @@ export class MemoryRoom extends Room<MemoryRoomState> {
     }
 
     isMatch(i1: number, i2: number) {
-        console.log(`${this.state.numbers[i1]} == ${this.state.numbers[i2]}`)
         return this.state.numbers[i1] == this.state.numbers[i2]; 
     }
 
