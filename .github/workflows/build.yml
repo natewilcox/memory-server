@@ -1,0 +1,32 @@
+name: Build and Deploy
+on: [push, pull_request]
+
+jobs:
+  npm-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm run build
+
+      - name: Set up .npmrc file to publish to npm
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # - name: Patch version
+      #   run: |
+      #     git config --local user.email "natewilcox@gmail.com"
+      #     git config --local user.name "GitHub Action"
+
+      #     npm version patch -m "Automated version bump [skip ci]"
+      #     git commit -am "Automated version bump [skip ci]"
+      #     git push origin HEAD:main

@@ -1,6 +1,6 @@
 {
     "private": true,
-    "name": "memory-server",
+    "name": "@natewilcox/memory-server",
     "version": "1.0.0",
     "description": "colyseus server for memory match game",
     "main": "build/index.js",
