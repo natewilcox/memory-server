@@ -9,6 +9,7 @@
  * See: https://docs.colyseus.io/server/api/#constructor-options
  */
 import { listen } from "@colyseus/tools";
+export { MemoryRoom } from "./rooms/MemoryRoom";
 
 // Import Colyseus config
 import app from "./app.config";
