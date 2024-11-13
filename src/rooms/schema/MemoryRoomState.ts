@@ -20,4 +20,7 @@ export class MemoryRoomState extends Schema {
 
   @type( "boolean" )
   block = false;
+
+  @type( "boolean" )
+  peek = true;
 }

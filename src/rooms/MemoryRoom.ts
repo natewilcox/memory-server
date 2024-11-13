@@ -9,6 +9,7 @@ import { PlayerState } from "./schema/PlayerState";
 import { LeaveCommand } from "../commands/LeaveCommand";
 import { ClientService } from "../services/client";
 import { Board } from "../objects/board";
+import { PeekCommand } from "../commands/PeekCommand";
 
 export class MemoryRoom extends Room<MemoryRoomState> {
 
@@ -34,6 +35,10 @@ export class MemoryRoom extends Room<MemoryRoomState> {
 
         this.client.on(MessageType.Restart, (client, message) => {
             this.dispatcher.dispatch(new CreateBoardCommand(), { client });
+        });
+
+        this.client.on(MessageType.Peek, (client) => {
+            this.dispatcher.dispatch(new PeekCommand(), { client });
         });
     }
 

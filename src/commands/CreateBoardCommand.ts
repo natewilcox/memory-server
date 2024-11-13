@@ -19,7 +19,8 @@ export class CreateBoardCommand extends Command<MemoryRoom, Payload> {
         this.state.numbers.clear();
         this.state.number_state.clear();
         this.state.answerer.clear();
-  
+        this.state.peek = true;
+
         for (let i = 0; i < 20; i++) {
             this.state.numbers[i] = -1;
             this.state.number_state[i] = 0;
