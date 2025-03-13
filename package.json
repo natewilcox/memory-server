@@ -1,8 +1,8 @@
 {
     "name": "@natewilcox/memory-server",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "colyseus server for memory match game",
-    "main": "build/index.js",
+    "main": "build/main.js",
     "engines": {
         "node": ">= 16.13.0"
     },

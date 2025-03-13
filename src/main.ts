@@ -1,0 +1,1 @@
+export { MemoryRoom } from "./rooms/MemoryRoom";
